@@ -19,19 +19,23 @@ class Music(commands.Cog):
                     )
                 ]
             )
-            print("🎵 Lavalink conectado")
+            print("🎧 Lavalink conectado")
 
     @commands.command()
     async def play(self, ctx, *, query: str):
+        # usuário não está em call
         if not ctx.author.voice:
-            return await ctx.send("❌ Entre em um canal de voz primeiro.")
+            return await ctx.send("❌ Você precisa entrar em uma call primeiro.")
 
+        # conecta o bot
         if not ctx.voice_client:
-            vc: wavelink.Player = await ctx.author.voice.channel.connect(cls=wavelink.Player)
+            vc = await ctx.author.voice.channel.connect(cls=wavelink.Player)
         else:
-            vc: wavelink.Player = ctx.voice_client
+            vc = ctx.voice_client
 
+        # busca música
         tracks = await wavelink.Playable.search(query)
+
         if not tracks:
             return await ctx.send("❌ Música não encontrada.")
 
@@ -40,23 +44,5 @@ class Music(commands.Cog):
 
         await ctx.send(f"▶️ Tocando **{track.title}**")
 
-    @commands.command()
-    async def volume(self, ctx, vol: int):
-        vc: wavelink.Player = ctx.voice_client
-        if not vc:
-            return await ctx.send("❌ Bot não está na call.")
-
-        await vc.set_volume(vol)
-        await ctx.send(f"🔊 Volume ajustado para {vol}%")
-
-    @commands.command()
-    async def stop(self, ctx):
-        vc: wavelink.Player = ctx.voice_client
-        if not vc:
-            return await ctx.send("❌ Bot não está na call.")
-
-        await vc.disconnect()
-        await ctx.send("⏹️ Música parada e bot desconectado.")
-
-async def setup(bot):
-    await bot.add_cog(Music(bot))
+def setup(bot):
+    bot.add_cog(Music(bot))
