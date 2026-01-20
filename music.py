@@ -23,26 +23,21 @@ class Music(commands.Cog):
 
     @commands.command()
     async def play(self, ctx, *, query: str):
-        # usuário não está em call
         if not ctx.author.voice:
-            return await ctx.send("❌ Você precisa entrar em uma call primeiro.")
+            return await ctx.send("❌ Entre em uma call primeiro.")
 
-        # conecta o bot
         if not ctx.voice_client:
             vc = await ctx.author.voice.channel.connect(cls=wavelink.Player)
         else:
             vc = ctx.voice_client
 
-        # busca música
         tracks = await wavelink.Playable.search(query)
-
         if not tracks:
             return await ctx.send("❌ Música não encontrada.")
 
         track = tracks[0]
         await vc.play(track)
-
         await ctx.send(f"▶️ Tocando **{track.title}**")
 
-def setup(bot):
-    bot.add_cog(Music(bot))
+async def setup(bot):
+    await bot.add_cog(Music(bot))
